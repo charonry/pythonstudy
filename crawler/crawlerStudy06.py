@@ -32,6 +32,7 @@ if __name__ == "__main__":
     print(t2 - t1)
 """
 
+"""
 import asyncio
 import aiohttp
 
@@ -73,3 +74,51 @@ async def asyncfinal():
 if __name__ == '__main__':
     asyncio.run(asyncfinal())
     print("all over!")
+"""
+
+
+import requests
+import asyncio
+import aiohttp
+import aiofiles
+import json
+import time
+
+async def get_chapterid(url, bookId, headers):
+    resp = requests.get(url, verify=False, headers=headers)
+    chapter_id = int(resp.json().get("lastchapterid"))
+    par_file_path = "./resource/txt/"
+    tasks = []
+    for i in range(1, chapter_id + 1):
+        tasks.append(asyncio.create_task(download(bookId, i, par_file_path, headers)))
+    await asyncio.wait(tasks)
+
+
+async def download(bookId, chaptid, par_file_path, headers):
+    url = f"https://apibi.cc/api/chapter?id={bookId}&chapterid={chaptid}"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, ssl=False, headers=headers) as resp:
+            text = await resp.text()
+            json_resp = json.loads(text)
+            chaptername = json_resp["chaptername"]
+            conetext = json_resp["txt"]
+            file_path = par_file_path + chaptername + ".txt"
+            async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
+                await f.write(conetext)
+                print(chaptername, "write over")
+
+
+if __name__ == '__main__':
+    book_id = '2530'
+    url = f"https://apibi.cc/api/book?id={book_id}"
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/142.0.0.0 "
+                      "Safari/537.36",
+        'Connection': 'close'
+    }
+    t1 = time.time()
+    asyncio.run(get_chapterid(url, book_id, headers))
+    t2 = time.time()
+    print("耗时间：",t2-t1)
+
