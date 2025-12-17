@@ -1,0 +1,17 @@
+[2025-11-27 17:18:31,451] DEBUG     this is  debug
+[2025-11-27 17:18:31,452] INFO      this is  info
+[2025-11-27 17:18:31,452] WARNING    this is  warning
+[2025-11-27 17:19:13,299] DEBUG     this is  debug
+[2025-11-27 17:19:13,299] INFO      this is  info
+[2025-11-27 17:19:13,300] WARNING    this is  warning
+[2025-11-27 17:19:28,332] DEBUG       this is  debug
+[2025-11-27 17:19:28,332] INFO        this is  info
+[2025-11-27 17:19:28,332] WARNING     this is  warning
+[2025-11-27 18:59:46,426] INFO        info
+[2025-11-27 18:59:46,426] WARNING     warning
+[2025-11-27 18:59:46,426] ERROR       error
+[2025-11-27 18:59:46,426] CRITICAL    critical
+[2025-12-04 14:59:06,107] INFO        info
+[2025-12-04 14:59:06,108] WARNING     warning
+[2025-12-04 14:59:06,108] ERROR       error
+[2025-12-04 14:59:06,108] CRITICAL    critical
