@@ -123,6 +123,7 @@ if __name__ == '__main__':
     print("耗时间：",t2-t1)
 """
 
+"""
 import asyncio
 import aiohttp
 import aiofiles
@@ -186,3 +187,74 @@ if __name__ == '__main__':
     asyncio.run(get_chapterid(url, book_id, headers))
     t2 = time.time()
     print("总耗时：", t2 - t1)
+"""
+
+import asyncio
+import aiohttp
+import aiofiles
+import json
+import requests
+import time
+import os
+
+# 1. 提高并发数到 100
+sem = asyncio.Semaphore(100)
+
+
+async def download(session, bookId, chaptid, par_file_path, headers):
+    url = f"https://apibi.cc/api/chapter?id={bookId}&chapterid={chaptid}"
+
+    # --- 第一阶段：受限的高并发网络请求 ---
+    try:
+        async with sem:
+            # 增加 timeout 防止个别请求卡死整体速度
+            async with session.get(url, ssl=False, headers=headers, timeout=15) as resp:
+                # 使用 read() 绕过 aiohttp 自动检测编码的耗时过程
+                content = await resp.read()
+    except Exception as e:
+        print(f"章节 {chaptid} 请求失败: {e}")
+        return
+
+    # --- 第二阶段：不受限的数据处理与磁盘 IO ---
+    # 此时已经释放了信号量“坑位”，其他请求可以立刻补上
+    try:
+        data = json.loads(content.decode('utf-8'))
+        chaptername = data.get("chaptername", f"Unknown_{chaptid}")
+        conetext = data.get("txt", "")
+
+        # 快速清理文件名
+        clean_name = "".join(i for i in chaptername if i not in r'\/:*?"<>|')
+        file_path = os.path.join(par_file_path, f"{clean_name}.txt")
+
+        async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
+            await f.write(conetext)
+    except Exception as e:
+        pass  # 忽略部分解析失败，保证整体速度
+
+
+async def get_chapterid(url, bookId, headers):
+    resp = requests.get(url, verify=False, headers=headers)
+    chapter_id = int(resp.json().get("lastchapterid"))
+    par_file_path = "./resource/txt/"
+
+    # 2. 配置 TCP 连接池，允许更高的并发连接
+    connector = aiohttp.TCPConnector(limit=200, use_dns_cache=True)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        tasks = [
+            asyncio.create_task(download(session, bookId, i, par_file_path, headers))
+            for i in range(1, chapter_id + 1)
+        ]
+        await asyncio.gather(*tasks)  # gather 通常比 wait 在处理大量任务时稍微高效
+
+
+if __name__ == '__main__':
+    path = "./resource/txt/"
+    if not os.path.exists(path): os.makedirs(path)
+
+    book_id = '88378'
+    api_url = f"https://apibi.cc/api/book?id={book_id}"
+    headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36..."}
+
+    t1 = time.time()
+    asyncio.run(get_chapterid(api_url, book_id, headers))
+    print(f"总耗时：{time.time() - t1:.2f} 秒")
