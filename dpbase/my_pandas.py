@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
 import warnings
+import json
 import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 pd.set_option('display.unicode.ambiguous_as_wide', True)
 pd.set_option('display.unicode.east_asian_width', True)
 pd.set_option('display.width', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.expand_frame_repr', False)
 
 """
 # series
@@ -113,8 +116,95 @@ pd.set_option('display.width', None)
 # num_3c = df[df['商品类别'] == '电子产品']['购买数量'].sum()
 """
 
+"""
 df_csv = pd.read_csv("./resource/wps/employees.csv")
-# df = pd.read_excel(r"D:\pythonSpace\pythonProject\resource\wps\demo01.xlsx")
-# df.to_csv('./resource/wps/new.csv', index=False)
-df_json = pd.read_json('./resource/txt/test.json')
+df = pd.read_excel(r"D:\pythonSpace\pythonProject\resource\wps\demo01.xlsx")
+df.to_csv('./resource/wps/new.csv', index=False)
+with open('./resource/txt/test.json', encoding='utf-8') as f:
+    json_data = json.load(f)
+type(json_data)
+df_json = pd.DataFrame(json_data['users'])
+"""
+
+"""
+s = pd.Series([1, 2, np.nan, None, pd.NA])
+df = pd.DataFrame([[1, 2, 3, np.nan], [11, 12, None, 14], [21, pd.NA, 23, 24]])
+s.dropna() 剔除单个数据，
+df.dropna() 剔除一整行，
+df.dropna(how='all')所有数据都是NA才剔除，
+df.dropna(thresh=n)至少有n个不是缺失值就保留，
+df.dropna(subset=[n])剔除column=n的NA的那行数据
+"""
+
+"""
+df = pd.read_csv("./resource/wps/weather_withna.csv")
+df.fillna({'temp_max': 15.4, 'temp_min': 5.4})  # 对于列=NA的数据填充（固定值）不会修改到源数据
+df.fillna(df[['wind', 'precipitation']].mean())  # 对于列=NA的数据填充（计算）不会修改到源数据
+df.ffill()  # 相邻前面值填充NA df.ffill(inplace=True)  不生成副本;原地修改
+df.bfill()  # 后面前面值填充NA
+"""
+
+"""
+data = {
+    '用户名': ['张三', '钱七', '王五', '张三', '钱七'],
+    '商品类别': ['电子产品', '服饰', '家具', '电子产品', '服饰'],
+    '商品单价': [200, 300, 800, 200, 200]
+}
+df = pd.DataFrame(data)
+df.drop_duplicates()
+df.drop_duplicates(subset=['用户名','商品类别'],keep='last')
+"""
+
+"""
+df = pd.read_csv(r"./resource/wps/sleep.csv")
+df['age'] = df['age'].astype(np.uint8)
+df['gender'] = df['gender'].astype('category')
+df['is_male'] = df['gender'].map({'Female': True, 'Male': False})
+"""
+
+"""
+data = {
+    'ID': [1, 2],
+    'NAME': ['NACY', 'TOM'],
+    'math': [78, 79],
+    'chinese': [88, 89],
+    'english': [98, 99]
+}
+df = pd.DataFrame(data)
+# 行列转置
+df.T
+# 宽表转长表
+df2 = df.melt(id_vars=['ID', 'NAME'], var_name='subject', value_name='scores')
+df2.sort_values(['ID', 'NAME'], inplace=True)
+# 长表转宽表
+df3 = df2.pivot(index=['ID', 'NAME'], columns='subject', values='scores')
+"""
+
+"""
+df = pd.read_csv(r"./resource/wps/sleep.csv")
+# expand = True 没有就是Series，有就是DataFrame
+df[['high_pressure', 'low_pressure']] = df['blood_pressure'].str.split("/", expand=True)
+df['high_pressure'] = df['high_pressure'].astype('int16')
+df['low_pressure'] = df['low_pressure'].astype(np.uint8)
+"""
+
+"""
+df = pd.read_csv("./resource/wps/employees.csv")
+# bins是整数：分成n段区间 .value_counts()查看区间个数
+pd.cut(df['salary'], bins=2)
+# bins自设区间
+pd.cut(df['salary'], bins=[0, 10000, 20000, 25000], labels=['低', '中', '高'])
+# 个数等分
+pd.qcut(df['salary'], 3)
+"""
+
+
+
+
+
+
+
+
+
+
 
