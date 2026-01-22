@@ -210,11 +210,20 @@ df['dayWeek'] = df['datetime'].dt.day_name()
 df_csv = pd.read_csv("./resource/wps/weather_withna.csv", parse_dates=['date'])
 """
 
-
-
-
-
-
-
+"""
+df = pd.read_csv("./resource/wps/employees.csv")
+df.dropna(subset='department_id', inplace=True)
+df['department_id'] = df['department_id'].astype('int32')
+# 分组信息--单条件
+df.groupby('department_id').groups
+# 具体分组数据
+df.groupby('department_id').get_group(10)
+# 具体分组数据处理
+df.groupby('department_id')['salary'].mean()  # Series
+df.groupby('department_id')[['salary']].mean()  # DataFrame
+# 分组信息--多条件
+df.groupby(['department_id', 'job_id']).groups
+df.groupby(['department_id', 'job_id']).get_group((20, 'MK_MAN'))
+"""
 
 
