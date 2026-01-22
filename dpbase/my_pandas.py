@@ -226,4 +226,32 @@ df.groupby(['department_id', 'job_id']).groups
 df.groupby(['department_id', 'job_id']).get_group((20, 'MK_MAN'))
 """
 
+# demo1
+# df = pd.read_csv("./resource/wps/penguins.csv")
+# df.dropna(inplace=True)
+# df['sex'] = df['sex'].astype('category')
+# labels = ['低', '中', '高']
+# df['mass_level'] = pd.cut(df['body_mass_g'], bins=3, labels=labels)
+# df1 = df.groupby(['sex', 'island']).agg({
+#     "body_mass_g": ['mean', 'count']
+# })
+
+"""
+# demo2
+df = pd.read_csv(r"./resource/wps/sleep.csv")
+df.drop(columns=['sleep_disorder'], inplace=True)
+df['bmi_category'] = df['bmi_category'].astype('category')
+df[['high', 'low']] = df['blood_pressure'].str.split("/", expand=True)
+labels = ['差', '中', '优']
+df['quality_level'] = pd.cut(df['sleep_quality'], bins=3, labels=labels)
+df1 = df.groupby(['bmi_category']).agg({
+    "sleep_duration": 'mean',
+    'sleep_quality': 'mean',
+    'stress_level': 'mean'
+})
+"""
+
+
+
+
 
