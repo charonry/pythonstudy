@@ -198,7 +198,17 @@ pd.cut(df['salary'], bins=[0, 10000, 20000, 25000], labels=['低', '中', '高']
 pd.qcut(df['salary'], 3)
 """
 
-
+"""
+data = {
+    '日期': ['20250601', '20250602', '20250603'],
+    '商品单价': [200, 300, 800]
+}
+df = pd.DataFrame(data)
+df['datetime'] = pd.to_datetime(df['日期'])
+# dt是时间选择器
+df['dayWeek'] = df['datetime'].dt.day_name()
+df_csv = pd.read_csv("./resource/wps/weather_withna.csv", parse_dates=['date'])
+"""
 
 
 
